@@ -241,25 +241,123 @@ class ChatApp {
     }
 
     async showNewChatDialog() {
-        const chatName = prompt('Enter chat name:');
-        if (!chatName) return;
+        // Create a proper modal dialog for new chat
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md mx-4">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${window.i18n?.t('newChat') || 'New Chat'}</h3>
+                </div>
+                <div class="p-6">
+                    <label for="chatNameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        ${window.i18n?.t('chatName') || 'Chat Name'}
+                    </label>
+                    <input 
+                        type="text" 
+                        id="chatNameInput"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="${window.i18n?.t('enterChatName') || 'Enter chat name...'}"
+                        maxlength="50"
+                        autocomplete="off"
+                    >
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        ${window.i18n?.t('chatNameHint') || 'Use letters, numbers, underscore, and dash only'}
+                    </div>
+                </div>
+                <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3 space-x-reverse">
+                    <button id="cancelNewChat" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        ${window.i18n?.t('cancel') || 'Cancel'}
+                    </button>
+                    <button id="createNewChat" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        ${window.i18n?.t('create') || 'Create'}
+                    </button>
+                </div>
+            </div>
+        `;
         
-        try {
-            console.log('Creating chat:', chatName);
-            if (window.apiClient) {
-                await window.apiClient.createChat(chatName);
-                await this.loadChatHistory();
-                await this.openChat(chatName);
-                if (window.toast) {
-                    window.toast.success('Chat created successfully');
+        document.body.appendChild(modal);
+        
+        const input = modal.querySelector('#chatNameInput');
+        const createBtn = modal.querySelector('#createNewChat');
+        const cancelBtn = modal.querySelector('#cancelNewChat');
+        
+        // Focus input
+        setTimeout(() => input.focus(), 100);
+        
+        // Validate input
+        const validateInput = () => {
+            const value = input.value.trim();
+            const isValid = value.length > 0 && value.length <= 50 && /^[A-Za-z0-9_-]+$/.test(value);
+            createBtn.disabled = !isValid;
+            
+            if (value.length > 0 && !isValid) {
+                input.classList.add('border-red-500', 'focus:ring-red-500');
+                input.classList.remove('border-gray-300', 'focus:ring-blue-500');
+            } else {
+                input.classList.remove('border-red-500', 'focus:ring-red-500');
+                input.classList.add('border-gray-300', 'focus:ring-blue-500');
+            }
+        };
+        
+        input.addEventListener('input', validateInput);
+        
+        // Handle create
+        const handleCreate = async () => {
+            const chatName = input.value.trim();
+            if (!chatName) return;
+            
+            try {
+                createBtn.disabled = true;
+                createBtn.textContent = window.i18n?.t('creating') || 'Creating...';
+                
+                console.log('Creating chat:', chatName);
+                if (window.apiClient) {
+                    await window.apiClient.createChat(chatName);
+                    await this.loadChatHistory();
+                    await this.openChat(chatName);
+                    if (window.toast) {
+                        window.toast.success(window.i18n?.t('chatCreated') || 'Chat created successfully');
+                    }
                 }
+                document.body.removeChild(modal);
+            } catch (error) {
+                console.error('Error creating chat:', error);
+                if (window.toast) {
+                    window.toast.error(error.message);
+                }
+                createBtn.disabled = false;
+                createBtn.textContent = window.i18n?.t('create') || 'Create';
             }
-        } catch (error) {
-            console.error('Error creating chat:', error);
-            if (window.toast) {
-                window.toast.error(error.message);
+        };
+        
+        // Handle cancel
+        const handleCancel = () => {
+            document.body.removeChild(modal);
+        };
+        
+        // Event listeners
+        createBtn.addEventListener('click', handleCreate);
+        cancelBtn.addEventListener('click', handleCancel);
+        
+        // Enter key to create
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !createBtn.disabled) {
+                handleCreate();
+            } else if (e.key === 'Escape') {
+                handleCancel();
             }
-        }
+        });
+        
+        // Click outside to cancel
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                handleCancel();
+            }
+        });
+        
+        // Initial validation
+        validateInput();
     }
 
     async openChat(chatName) {

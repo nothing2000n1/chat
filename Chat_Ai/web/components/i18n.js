@@ -9,6 +9,11 @@ class I18n {
                 
                 // Header
                 newChat: 'محادثة جديدة',
+                chatName: 'اسم المحادثة',
+                enterChatName: 'أدخل اسم المحادثة...',
+                chatNameHint: 'استخدم الحروف والأرقام والشرطة السفلية والشرطة فقط',
+                create: 'إنشاء',
+                creating: 'جاري الإنشاء...',
                 apiBaseUrl: 'رابط API',
                 searchChats: 'البحث في المحادثات...',
                 connected: 'متصل',
@@ -110,6 +115,11 @@ class I18n {
                 
                 // Header
                 newChat: 'New Chat',
+                chatName: 'Chat Name',
+                enterChatName: 'Enter chat name...',
+                chatNameHint: 'Use letters, numbers, underscore, and dash only',
+                create: 'Create',
+                creating: 'Creating...',
                 apiBaseUrl: 'API Base URL',
                 searchChats: 'Search chats...',
                 connected: 'Connected',
