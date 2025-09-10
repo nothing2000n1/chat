@@ -44,6 +44,7 @@ class I18n {
                 attachFile: 'إرفاق ملف',
                 voiceRecord: 'تسجيل صوتي',
                 recording: 'جاري التسجيل',
+                enterChatName: 'أدخل اسم المحادثة:',
                 
                 // Quick Actions
                 summarize: 'تلخيص',
@@ -144,6 +145,7 @@ class I18n {
                 attachFile: 'Attach File',
                 voiceRecord: 'Voice Record',
                 recording: 'Recording',
+                enterChatName: 'Enter chat name:',
                 
                 // Quick Actions
                 summarize: 'Summarize',

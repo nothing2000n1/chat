@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 
 from chat.chat_methods import (
     create_chat,
@@ -24,10 +25,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files
+app.mount("/web", StaticFiles(directory="web"), name="web")
+
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    html_path = Path(__file__).parent/  "web" / "index.html"
+    html_path = Path(__file__).parent / "web" / "index.html"
     return HTMLResponse(html_path.read_text(encoding="utf-8"))
 
 

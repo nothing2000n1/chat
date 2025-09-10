@@ -101,11 +101,20 @@ class ChatApp {
         
         // Message input
         const messageInput = document.getElementById('messageInput');
-        messageInput?.addEventListener('input', () => this.handleInputChange());
-        messageInput?.addEventListener('keydown', (e) => this.handleInputKeydown(e));
+        if (messageInput) {
+            messageInput.addEventListener('input', () => this.handleInputChange());
+            messageInput.addEventListener('keydown', (e) => this.handleInputKeydown(e));
+        }
         
         // Send button
-        document.getElementById('sendBtn')?.addEventListener('click', () => this.sendMessage());
+        const sendBtn = document.getElementById('sendBtn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Send button clicked');
+                this.sendMessage();
+            });
+        }
         
         // Voice recording
         document.getElementById('voiceBtn')?.addEventListener('click', () => this.toggleVoiceRecording());
@@ -136,6 +145,8 @@ class ChatApp {
         window.addEventListener('languageChanged', () => this.updateLanguageUI());
         window.addEventListener('themeChanged', () => this.updateThemeUI());
         window.addEventListener('connectionChanged', (e) => this.handleConnectionChange(e.detail));
+        
+        console.log('Event listeners setup complete');
     }
 
     setupKeyboardShortcuts() {
@@ -381,7 +392,7 @@ class ChatApp {
     }
 
     async showNewChatDialog() {
-        const chatName = prompt('Enter chat name:');
+        const chatName = prompt(window.i18n?.t('enterChatName') || 'Enter chat name:');
         if (!chatName) return;
         
         try {
@@ -518,8 +529,14 @@ class ChatApp {
         const messageInput = document.getElementById('messageInput');
         const content = messageInput?.value.trim();
         
+        console.log('sendMessage called, content:', content);
+        console.log('Current chat:', this.currentChat);
+        console.log('Has attachments:', window.attachmentManager?.hasAttachments());
+        
         if (!content && !window.attachmentManager?.hasAttachments()) return;
+        
         if (!this.currentChat) {
+            console.log('No current chat, creating new one');
             await this.showNewChatDialog();
             if (!this.currentChat) return;
         }
@@ -539,7 +556,9 @@ class ChatApp {
             }
             
             // Clear input and attachments
-            messageInput.value = '';
+            if (messageInput) {
+                messageInput.value = '';
+            }
             window.attachmentManager?.clearAttachments();
             this.updateCharCount();
             
@@ -745,7 +764,17 @@ class ChatApp {
         if (messageInput && sendBtn) {
             const hasContent = messageInput.value.trim().length > 0;
             const hasAttachments = window.attachmentManager?.hasAttachments();
-            sendBtn.disabled = !hasContent && !hasAttachments;
+            const shouldEnable = hasContent || hasAttachments;
+            sendBtn.disabled = !shouldEnable;
+            
+            // Visual feedback
+            if (shouldEnable) {
+                sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                sendBtn.classList.add('hover:bg-blue-700');
+            } else {
+                sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                sendBtn.classList.remove('hover:bg-blue-700');
+            }
         }
     }
 
