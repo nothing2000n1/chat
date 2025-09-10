@@ -420,12 +420,12 @@ class ChatApp {
     createMessageElement(message, index) {
         const isUser = message.role === 'user';
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message-container flex mb-6 ${isUser ? 'user-message' : 'assistant-message'}`;
+        messageDiv.className = `message-container ${isUser ? 'user-message' : 'assistant-message'}`;
         messageDiv.dataset.index = index;
         
         // Create message wrapper with avatar
         const messageWrapper = document.createElement('div');
-        messageWrapper.className = 'flex items-end max-w-4xl';
+        messageWrapper.className = 'message-wrapper';
         
         // Create avatar
         const avatar = document.createElement('div');
@@ -434,7 +434,7 @@ class ChatApp {
         
         // Create message bubble container
         const bubbleContainer = document.createElement('div');
-        bubbleContainer.className = 'flex flex-col';
+        bubbleContainer.className = 'bubble-container';
         
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = `message-bubble group ${isUser ? 'message-user' : 'message-assistant'}`;
@@ -477,18 +477,9 @@ class ChatApp {
         bubbleDiv.appendChild(contentDiv);
         bubbleDiv.appendChild(actionsDiv);
         
-        // Add the group class for hover effects
-        bubbleDiv.classList.add('group');
         bubbleContainer.appendChild(bubbleDiv);
-        
-        // Add avatar and bubble to wrapper (order depends on user/assistant)
-        if (isUser) {
-            messageWrapper.appendChild(bubbleContainer);
-            messageWrapper.appendChild(avatar);
-        } else {
-            messageWrapper.appendChild(avatar);
-            messageWrapper.appendChild(bubbleContainer);
-        }
+        messageWrapper.appendChild(avatar);
+        messageWrapper.appendChild(bubbleContainer);
         
         messageDiv.appendChild(messageWrapper);
         
