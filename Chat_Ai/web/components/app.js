@@ -452,10 +452,6 @@ class ChatApp {
         }
         
         bubbleDiv.className = bubbleClasses;
-            isUser 
-                ? 'bg-blue-600 text-white ml-auto' 
-                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
-        }`;
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
