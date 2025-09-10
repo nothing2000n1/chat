@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 import os
+import os
 
 from chat.chat_methods import (
     create_chat,
@@ -28,6 +29,12 @@ app.add_middleware(
 
 # Mount static files - serve the web directory
 web_dir = Path(__file__).parent / "web"
+app.mount("/web", StaticFiles(directory=str(web_dir)), name="web")
+
+# Also mount individual directories for better access
+app.mount("/styles", StaticFiles(directory=str(web_dir / "styles")), name="styles")
+app.mount("/components", StaticFiles(directory=str(web_dir / "components")), name="components")
+app.mount("/app", StaticFiles(directory=str(web_dir / "app")), name="app")
 app.mount("/web", StaticFiles(directory=str(web_dir)), name="web")
 
 # Also mount individual directories for better access
