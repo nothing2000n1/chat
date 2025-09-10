@@ -85,25 +85,38 @@
 .message-user {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: white;
-  border-radius: 18px 18px 4px 18px;
-  margin-left: auto;
 }
 
+/* RTL-specific message positioning */
 [dir="rtl"] .message-user {
-  border-radius: 18px 18px 18px 4px;
   margin-right: auto;
   margin-left: 0;
+  border-radius: 18px 18px 18px 4px;
+}
+
+[dir="ltr"] .message-user {
+  margin-left: auto;
+  margin-right: 0;
+  border-radius: 18px 18px 4px 18px;
 }
 
 .message-assistant {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  border-radius: 18px 18px 18px 4px;
   border: 1px solid var(--border-color);
 }
 
+/* RTL-specific assistant message positioning */
 [dir="rtl"] .message-assistant {
+  margin-left: auto;
+  margin-right: 0;
   border-radius: 18px 18px 4px 18px;
+}
+
+[dir="ltr"] .message-assistant {
+  margin-right: auto;
+  margin-left: 0;
+  border-radius: 18px 18px 18px 4px;
 }
 
 /* Code Blocks */

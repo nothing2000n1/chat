@@ -413,10 +413,45 @@ class ChatApp {
     createMessageElement(message, index) {
         const isUser = message.role === 'user';
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message-container flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`;
+        
+        // Check if we're in RTL mode
+        const isRTL = document.documentElement.dir === 'rtl';
+        
+        // In RTL: user messages go to the left, assistant to the right
+        // In LTR: user messages go to the right, assistant to the left
+        let justifyClass;
+        if (isRTL) {
+            justifyClass = isUser ? 'justify-start' : 'justify-end';
+        } else {
+            justifyClass = isUser ? 'justify-end' : 'justify-start';
+        }
+        
+        messageDiv.className = `message-container flex ${justifyClass} mb-4`;
         
         const bubbleDiv = document.createElement('div');
-        bubbleDiv.className = `message-bubble p-4 max-w-xs lg:max-w-md xl:max-w-lg rounded-2xl ${
+        
+        // Message bubble styling with proper RTL support
+        let bubbleClasses = 'message-bubble p-4 max-w-xs lg:max-w-md xl:max-lg rounded-2xl ';
+        
+        if (isUser) {
+            // User message styling
+            bubbleClasses += 'bg-blue-600 text-white ';
+            if (isRTL) {
+                bubbleClasses += 'mr-auto rounded-tl-sm'; // RTL: user messages have rounded corner on top-left
+            } else {
+                bubbleClasses += 'ml-auto rounded-tr-sm'; // LTR: user messages have rounded corner on top-right
+            }
+        } else {
+            // Assistant message styling
+            bubbleClasses += 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 ';
+            if (isRTL) {
+                bubbleClasses += 'ml-auto rounded-tr-sm'; // RTL: assistant messages have rounded corner on top-right
+            } else {
+                bubbleClasses += 'mr-auto rounded-tl-sm'; // LTR: assistant messages have rounded corner on top-left
+            }
+        }
+        
+        bubbleDiv.className = bubbleClasses;
             isUser 
                 ? 'bg-blue-600 text-white ml-auto' 
                 : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'

@@ -235,6 +235,13 @@ class I18n {
         document.documentElement.lang = lang;
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         
+        // Force re-render of messages when language changes to apply RTL layout
+        if (window.chatApp && window.chatApp.messageHistory.length > 0) {
+            setTimeout(() => {
+                window.chatApp.renderMessages();
+            }, 100);
+        }
+        
         // Update document title
         document.title = this.t('appTitle');
         
