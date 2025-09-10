@@ -86,6 +86,8 @@ class I18n {
                 unpin: 'إلغاء التثبيت',
                 copy: 'نسخ',
                 regenerate: 'إعادة توليد',
+                confirm: 'تأكيد',
+                ok: 'موافق',
                 
                 // Errors
                 networkError: 'خطأ في الشبكة',
@@ -184,6 +186,8 @@ class I18n {
                 unpin: 'Unpin',
                 copy: 'Copy',
                 regenerate: 'Regenerate',
+                confirm: 'Confirm',
+                ok: 'OK',
                 
                 // Errors
                 networkError: 'Network error',

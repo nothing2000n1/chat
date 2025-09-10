@@ -30,6 +30,13 @@ class ChatApp {
             // Initialize Lucide icons
             lucide.createIcons();
             
+            // Force icon refresh after a short delay
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, 500);
+            
             console.log('Chat AI initialized successfully');
         } catch (error) {
             console.error('Error initializing app:', error);
@@ -113,6 +120,13 @@ class ChatApp {
                 this.insertTemplate(template);
             });
         });
+        
+        // Initialize Lucide icons after DOM is ready
+        setTimeout(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }, 100);
         
         // Window events
         window.addEventListener('beforeunload', () => this.saveState());
@@ -231,6 +245,65 @@ class ChatApp {
         lucide.createIcons();
     }
 
+    showChatMenu(chatName, event) {
+        // Simple context menu implementation
+        const menu = document.createElement('div');
+        menu.className = 'fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 z-50';
+        menu.style.left = event.pageX + 'px';
+        menu.style.top = event.pageY + 'px';
+        
+        const isPinned = window.store?.isChatPinned(chatName);
+        
+        menu.innerHTML = `
+            <button class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 space-x-reverse">
+                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                <span>${window.i18n?.t('rename') || 'Rename'}</span>
+            </button>
+            <button class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 space-x-reverse" onclick="window.chatApp.togglePinChat('${chatName}')">
+                <i data-lucide="${isPinned ? 'pin-off' : 'pin'}" class="w-4 h-4"></i>
+                <span>${isPinned ? (window.i18n?.t('unpin') || 'Unpin') : (window.i18n?.t('pin') || 'Pin')}</span>
+            </button>
+            <button class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 flex items-center space-x-2 space-x-reverse" onclick="window.chatApp.deleteChat('${chatName}')">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                <span>${window.i18n?.t('delete') || 'Delete'}</span>
+            </button>
+        `;
+        
+        document.body.appendChild(menu);
+        lucide.createIcons();
+        
+        // Close menu when clicking outside
+        const closeMenu = (e) => {
+            if (!menu.contains(e.target)) {
+                document.body.removeChild(menu);
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        
+        setTimeout(() => {
+            document.addEventListener('click', closeMenu);
+        }, 100);
+    }
+
+    togglePinChat(chatName) {
+        window.store?.togglePinChat(chatName);
+        this.renderChatList();
+        window.toast?.success(window.store?.isChatPinned(chatName) ? 'Chat pinned' : 'Chat unpinned');
+    }
+
+    deleteChat(chatName) {
+        if (confirm('Are you sure you want to delete this chat?')) {
+            window.store?.removeFromHistory(chatName);
+            this.chats = this.chats.filter(chat => chat !== chatName);
+            if (this.currentChat === chatName) {
+                this.currentChat = null;
+                this.showWelcomeMessage();
+            }
+            this.renderChatList();
+            window.toast?.success('Chat deleted');
+        }
+    }
+
     // Chat Management
     async loadChatHistory() {
         try {
@@ -282,6 +355,15 @@ class ChatApp {
                 const chatName = item.dataset.chat;
                 this.openChat(chatName);
             });
+            
+            // Fix chat menu button
+            const menuBtn = item.querySelector('.chat-menu-btn');
+            if (menuBtn) {
+                menuBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.showChatMenu(item.dataset.chat, e);
+                };
+            }
         });
         
         lucide.createIcons();

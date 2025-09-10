@@ -212,12 +212,12 @@ class ModalManager {
             const modal = this.createModal(id, title, `<p class="text-gray-600 dark:text-gray-400">${message}</p>`, {
                 primaryAction: {
                     label: options.confirmLabel || window.i18n?.t('confirm') || 'Confirm',
-                    handler: `window.modalManager.close('${id}'); window.modalManager._resolveConfirm(true);`
+                    handler: `window.modalManager.close('${id}'); window.modalManager._resolveConfirm && window.modalManager._resolveConfirm(true);`
                 }
             });
 
             // Override cancel button
-            const cancelBtn = modal.querySelector('button[onclick*="cancel"]');
+            const cancelBtn = modal.querySelector('button');
             if (cancelBtn) {
                 cancelBtn.onclick = () => {
                     this.close(id);
@@ -229,12 +229,16 @@ class ModalManager {
             this.open(id);
 
             // Clean up after close
-            modal.addEventListener('modalClosed', () => {
+            const cleanup = () => {
                 setTimeout(() => {
-                    document.body.removeChild(modal);
+                    if (modal.parentNode) {
+                        document.body.removeChild(modal);
+                    }
                     delete this._resolveConfirm;
                 }, 300);
-            });
+            };
+            
+            window.addEventListener('modalClosed', cleanup, { once: true });
         });
     }
 
