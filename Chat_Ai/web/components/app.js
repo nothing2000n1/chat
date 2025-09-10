@@ -407,6 +407,13 @@ class ChatApp {
             messagesArea.appendChild(messageElement);
         });
         
+        // Initialize Lucide icons after rendering all messages
+        setTimeout(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }, 100);
+        
         this.scrollToBottom();
     }
 
@@ -488,11 +495,6 @@ class ChatApp {
         // Add timestamp tooltip
         const timestamp = new Date().toLocaleString();
         bubbleDiv.title = timestamp;
-        
-        // Initialize Lucide icons for this message
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
         
         return messageDiv;
     }
@@ -628,6 +630,13 @@ class ChatApp {
             // Remove typing cursor
             if (contentDiv) {
                 contentDiv.textContent = assistantMessage;
+                
+                // Initialize icons for the completed message
+                setTimeout(() => {
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }, 50);
             }
             
             // Update message history
@@ -657,6 +666,13 @@ class ChatApp {
         }
         
         this.scrollToBottom();
+        
+        // Initialize Lucide icons for the new message
+        setTimeout(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }, 50);
         
         return messageElement;
     }
@@ -781,6 +797,13 @@ class ChatApp {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
+        
+        // Force icon refresh for message actions
+        setTimeout(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }, 200);
     }
 
     hideWelcomeMessage() {
