@@ -469,6 +469,9 @@ class ChatApp {
         // Assemble the message
         bubbleDiv.appendChild(contentDiv);
         bubbleDiv.appendChild(actionsDiv);
+        
+        // Add the group class for hover effects
+        bubbleDiv.classList.add('group');
         bubbleContainer.appendChild(bubbleDiv);
         
         // Add avatar and bubble to wrapper (order depends on user/assistant)
@@ -485,6 +488,11 @@ class ChatApp {
         // Add timestamp tooltip
         const timestamp = new Date().toLocaleString();
         bubbleDiv.title = timestamp;
+        
+        // Initialize Lucide icons for this message
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
         
         return messageDiv;
     }

@@ -177,41 +177,73 @@
 /* Message Actions */
 .message-actions {
   opacity: 0;
-  transition: opacity 0.3s ease;
+  visibility: hidden;
+  transition: all 0.3s ease;
   margin-top: 8px;
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  justify-content: flex-end;
+  transform: translateY(-5px);
 }
 
+.message-bubble.group:hover .message-actions,
 .message-bubble:hover .message-actions {
   opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .action-btn {
-  padding: 6px;
+  padding: 8px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  color: #64748b;
+  color: #374151;
   transition: all 0.2s ease;
   cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 .action-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: #1e293b;
+  background: rgba(255, 255, 255, 1);
+  color: #111827;
   transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="dark"] .action-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(31, 41, 55, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #9ca3af;
+  color: #d1d5db;
 }
 
 [data-theme="dark"] .action-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(31, 41, 55, 1);
   color: #f3f4f6;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Special styling for user message actions */
+.message-user .message-actions {
+  justify-content: flex-start;
+}
+
+.message-user .action-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-user .action-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Message Content Styling */
