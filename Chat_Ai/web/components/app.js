@@ -489,6 +489,63 @@ class ChatApp {
         return messageDiv;
     }
 
+    // Message Actions
+    copyMessage(index) {
+        const message = this.messageHistory[index];
+        if (message) {
+            navigator.clipboard.writeText(message.content);
+            if (window.toast) {
+                window.toast.success(window.i18n?.t('copied') || 'Copied');
+            }
+        }
+    }
+
+    async regenerateMessage(index) {
+        // Find the last user message before this assistant message
+        let userMessageIndex = -1;
+        for (let i = index - 1; i >= 0; i--) {
+            if (this.messageHistory[i].role === 'user') {
+                userMessageIndex = i;
+                break;
+            }
+        }
+        
+        if (userMessageIndex === -1) return;
+        
+        const userMessage = this.messageHistory[userMessageIndex];
+        
+        try {
+            // Remove messages after the user message
+            this.messageHistory = this.messageHistory.slice(0, userMessageIndex + 1);
+            this.renderMessages();
+            
+            // Resend the user message
+            if (window.apiClient) {
+                const stream = await window.apiClient.sendMessage(this.currentChat, userMessage.content, {
+                    stream: true
+                });
+                
+                this.showTypingIndicator();
+                await this.handleStreamingResponse(stream);
+            }
+            
+        } catch (error) {
+            console.error('Error regenerating message:', error);
+            if (window.toast) {
+                window.toast.error(error.message);
+            }
+        } finally {
+            this.hideTypingIndicator();
+        }
+    }
+
+    deleteMessage(index) {
+        if (confirm('Are you sure you want to delete this message?')) {
+            this.messageHistory.splice(index, 1);
+            this.renderMessages();
+        }
+    }
+
     async sendMessage() {
         const messageInput = document.getElementById('messageInput');
         const content = messageInput?.value.trim();
