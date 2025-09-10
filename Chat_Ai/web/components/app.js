@@ -653,6 +653,44 @@ class ChatApp {
         return messageElement;
     }
 
+    addCodeCopyButtons(container) {
+        const codeBlocks = container.querySelectorAll('pre code');
+        codeBlocks.forEach(codeBlock => {
+            const pre = codeBlock.parentElement;
+            
+            // Check if copy button already exists
+            if (pre.querySelector('.code-copy-btn')) return;
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'code-copy-btn';
+            copyBtn.textContent = 'Copy';
+            copyBtn.onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(codeBlock.textContent);
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                    
+                    if (window.toast) {
+                        window.toast.success('Code copied to clipboard');
+                    }
+                } catch (error) {
+                    console.error('Failed to copy code:', error);
+                    copyBtn.textContent = 'Failed';
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy';
+                    }, 2000);
+                }
+            };
+            
+            pre.style.position = 'relative';
+            pre.appendChild(copyBtn);
+        });
+    }
+
     showTypingIndicator() {
         const messagesArea = document.getElementById('messagesArea');
         if (!messagesArea) return;

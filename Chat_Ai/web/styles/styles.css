@@ -296,6 +296,11 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+.code-copy-btn.copied {
+  background: rgba(34, 197, 94, 0.8);
+  color: white;
+}
+
 /* Inline Code */
 .message-content code:not(pre code) {
   background: rgba(99, 102, 241, 0.15);
