@@ -1,0 +1,5 @@
+{"info": {"id": "1bb186", "name": "SVDzfdb", "created_at": "2025-09-10 20:05:33"}}
+{"chats": {"chat_id": "5595", "model": null, "created_at": "2025-09-10 20:54:24", "time_zone": "Asia/Riyadh", "messages": [{"role": "user", "content": "كيفك"}, {"role": "assistant", "content": null}]}}
+{"chats": {"chat_id": "5595", "model": null, "created_at": "2025-09-10 20:54:25", "time_zone": "Asia/Riyadh", "messages": [{"role": "user", "content": "كيفك"}, {"role": "assistant", "content": "انا جيد، شكراً لاستفسارك. كيف يمكنني مساعدتك اليوم؟"}]}}
+{"chats": {"chat_id": "9210", "model": null, "created_at": "2025-09-10 20:54:40", "time_zone": "Asia/Riyadh", "messages": [{"role": "user", "content": "من انت"}, {"role": "assistant", "content": null}]}}
+{"chats": {"chat_id": "9210", "model": null, "created_at": "2025-09-10 20:54:41", "time_zone": "Asia/Riyadh", "messages": [{"role": "user", "content": "من انت"}, {"role": "assistant", "content": "انا نموذج ذكاء اصطناعي تم إنشاؤه بواسطة شركة ميتا."}]}}
