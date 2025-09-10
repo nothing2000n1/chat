@@ -3,2086 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat AI</title>
+    <title>Chat AI - محادثة ذكية</title>
     
-    <!-- Google Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons CDN -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'ar': ['Tajawal', 'sans-serif'],
+                        'en': ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.2s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-dot': 'pulseDot 1.4s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
-    <style>
-        /* ===== CSS VARIABLES & THEMING ===== */
-        :root {
-            /* Fonts */
-            --font-arabic: 'Tajawal', system-ui, -apple-system, sans-serif;
-            --font-english: 'Inter', system-ui, -apple-system, sans-serif;
-            
-            /* Spacing */
-            --space-xs: 4px;
-            --space-sm: 8px;
-            --space-md: 12px;
-            --space-lg: 16px;
-            --space-xl: 24px;
-            
-            /* Border radius */
-            --radius-sm: 6px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            
-            /* Shadows */
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-            
-            /* Transitions */
-            --transition-fast: 0.15s ease-in-out;
-            --transition-normal: 0.2s ease-in-out;
-            --transition-slow: 0.3s ease-in-out;
-        }
-
-        /* Light theme (default) */
-        [data-theme="light"], 
-        [data-theme="system"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-tertiary: #f1f5f9;
-            --bg-accent: #3b82f6;
-            --bg-accent-hover: #2563eb;
-            --bg-success: #10b981;
-            --bg-warning: #f59e0b;
-            --bg-error: #ef4444;
-            
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --text-tertiary: #94a3b8;
-            --text-inverse: #ffffff;
-            
-            --border-primary: #e2e8f0;
-            --border-secondary: #cbd5e1;
-            --border-focus: #3b82f6;
-            
-            --bubble-user: #3b82f6;
-            --bubble-assistant: #f1f5f9;
-            --text-user: #ffffff;
-            --text-assistant: #0f172a;
-            
-            --overlay: rgba(0, 0, 0, 0.5);
-        }
-
-        /* Dark theme */
-        [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --bg-accent: #3b82f6;
-            --bg-accent-hover: #2563eb;
-            --bg-success: #10b981;
-            --bg-warning: #f59e0b;
-            --bg-error: #ef4444;
-            
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-tertiary: #94a3b8;
-            --text-inverse: #0f172a;
-            
-            --border-primary: #334155;
-            --border-secondary: #475569;
-            --border-focus: #3b82f6;
-            
-            --bubble-user: #3b82f6;
-            --bubble-assistant: #1e293b;
-            --text-user: #ffffff;
-            --text-assistant: #f8fafc;
-            
-            --overlay: rgba(0, 0, 0, 0.7);
-        }
-
-        /* System theme detection */
-        @media (prefers-color-scheme: dark) {
-            [data-theme="system"] {
-                --bg-primary: #0f172a;
-                --bg-secondary: #1e293b;
-                --bg-tertiary: #334155;
-                --bg-accent: #3b82f6;
-                --bg-accent-hover: #2563eb;
-                --bg-success: #10b981;
-                --bg-warning: #f59e0b;
-                --bg-error: #ef4444;
-                
-                --text-primary: #f8fafc;
-                --text-secondary: #cbd5e1;
-                --text-tertiary: #94a3b8;
-                --text-inverse: #0f172a;
-                
-                --border-primary: #334155;
-                --border-secondary: #475569;
-                --border-focus: #3b82f6;
-                
-                --bubble-user: #3b82f6;
-                --bubble-assistant: #1e293b;
-                --text-user: #ffffff;
-                --text-assistant: #f8fafc;
-                
-                --overlay: rgba(0, 0, 0, 0.7);
-            }
-        }
-
-        /* ===== BASE STYLES ===== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: var(--font-arabic);
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
-            overflow: hidden;
-            transition: background-color var(--transition-normal), color var(--transition-normal);
-        }
-
-        /* Font switching based on language */
-        [lang="en"] body {
-            font-family: var(--font-english);
-        }
-
-        /* ===== LAYOUT ===== */
-        .app {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            height: 100vh;
-            transition: grid-template-columns var(--transition-normal);
-        }
-
-        .app.sidebar-collapsed {
-            grid-template-columns: 0 1fr;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            background: var(--bg-primary);
-            border-inline-end: 1px solid var(--border-primary);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: all var(--transition-normal);
-        }
-
-        .sidebar-header {
-            padding: var(--space-lg);
-            border-bottom: 1px solid var(--border-primary);
-            flex-shrink: 0;
-        }
-
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: var(--space-lg);
-        }
-
-        .sidebar-section {
-            padding: var(--space-lg);
-            border-bottom: 1px solid var(--border-primary);
-            flex-shrink: 0;
-        }
-
-        .sidebar-section:last-child {
-            border-bottom: none;
-        }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-md);
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-lg);
-        }
-
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .input, .select, .textarea {
-            width: 100%;
-            padding: var(--space-md);
-            border: 1px solid var(--border-primary);
-            border-radius: var(--radius-md);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: all var(--transition-fast);
-        }
-
-        .input:focus, .select:focus, .textarea:focus {
-            outline: none;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .chat-history {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--space-lg);
-        }
-
-        .chat-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-xs);
-        }
-
-        .chat-item {
-            padding: var(--space-md);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 14px;
-        }
-
-        .chat-item:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .chat-item.active {
-            background: var(--bg-accent);
-            color: var(--text-inverse);
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background: var(--bg-secondary);
-        }
-
-        .header {
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-primary);
-            padding: var(--space-lg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-            gap: var(--space-lg);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: var(--space-lg);
-        }
-
-        .header-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-        }
-
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-        }
-
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--space-xl);
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-lg);
-        }
-
-        .message {
-            max-width: 75%;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .message.user {
-            align-self: flex-end;
-        }
-
-        .message.assistant {
-            align-self: flex-start;
-        }
-
-        .message-bubble {
-            padding: var(--space-lg);
-            border-radius: var(--radius-xl);
-            position: relative;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-
-        .message.user .message-bubble {
-            background: var(--bubble-user);
-            color: var(--text-user);
-            border-bottom-left-radius: var(--radius-sm);
-        }
-
-        .message.assistant .message-bubble {
-            background: var(--bubble-assistant);
-            color: var(--text-assistant);
-            border-bottom-left-radius: var(--radius-sm);
-        }
-
-        .message-actions {
-            display: flex;
-            gap: var(--space-xs);
-            margin-top: var(--space-sm);
-            opacity: 0;
-            transition: opacity var(--transition-fast);
-        }
-
-        .message:hover .message-actions {
-            opacity: 1;
-        }
-
-        .action-btn {
-            padding: var(--space-xs);
-            background: var(--bg-tertiary);
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .action-btn:hover {
-            background: var(--bg-accent);
-            color: var(--text-inverse);
-        }
-
-        .typing-indicator {
-            display: inline-block;
-            animation: blink 1s infinite;
-        }
-
-        .attachment-preview {
-            margin-top: var(--space-sm);
-            padding: var(--space-sm);
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            font-size: 12px;
-        }
-
-        .attachment-image {
-            max-width: 200px;
-            max-height: 150px;
-            border-radius: var(--radius-sm);
-            object-fit: cover;
-        }
-
-        /* ===== COMPOSER ===== */
-        .composer {
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-primary);
-            padding: var(--space-lg);
-            flex-shrink: 0;
-        }
-
-        .composer-form {
-            display: flex;
-            gap: var(--space-md);
-            align-items: flex-end;
-        }
-
-        .composer-input-container {
-            flex: 1;
-            position: relative;
-        }
-
-        .composer-textarea {
-            width: 100%;
-            min-height: 44px;
-            max-height: 200px;
-            padding: var(--space-md);
-            padding-inline-end: 120px;
-            border: 1px solid var(--border-primary);
-            border-radius: var(--radius-lg);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            resize: none;
-            font-family: inherit;
-            font-size: 14px;
-            line-height: 1.4;
-            transition: all var(--transition-fast);
-        }
-
-        .composer-textarea:focus {
-            outline: none;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .composer-actions {
-            position: absolute;
-            inset-inline-end: var(--space-sm);
-            bottom: var(--space-sm);
-            display: flex;
-            gap: var(--space-xs);
-        }
-
-        .composer-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: var(--radius-sm);
-            background: var(--bg-tertiary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition-fast);
-        }
-
-        .composer-btn:hover:not(:disabled) {
-            background: var(--bg-accent);
-            color: var(--text-inverse);
-        }
-
-        .composer-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .send-btn {
-            width: 44px;
-            height: 44px;
-            border: none;
-            border-radius: var(--radius-lg);
-            background: var(--bg-accent);
-            color: var(--text-inverse);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition-fast);
-        }
-
-        .send-btn:hover:not(:disabled) {
-            background: var(--bg-accent-hover);
-            transform: scale(1.05);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            padding: var(--space-md) var(--space-lg);
-            border: none;
-            border-radius: var(--radius-md);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: var(--bg-accent);
-            color: var(--text-inverse);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: var(--bg-accent-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: var(--bg-accent);
-            color: var(--text-inverse);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-full {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-icon {
-            padding: var(--space-sm);
-            width: auto;
-            height: auto;
-            min-width: 36px;
-            min-height: 36px;
-        }
-
-        /* ===== THEME SWITCHER ===== */
-        .theme-switcher {
-            display: flex;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            padding: 2px;
-            position: relative;
-        }
-
-        .theme-option {
-            padding: var(--space-xs) var(--space-sm);
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-radius: calc(var(--radius-md) - 2px);
-            font-size: 12px;
-            transition: all var(--transition-fast);
-            position: relative;
-            z-index: 1;
-        }
-
-        .theme-option.active {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* ===== LANGUAGE TOGGLE ===== */
-        .language-toggle {
-            display: flex;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            padding: 2px;
-        }
-
-        .lang-option {
-            padding: var(--space-xs) var(--space-md);
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-radius: calc(var(--radius-md) - 2px);
-            font-size: 12px;
-            font-weight: 600;
-            transition: all var(--transition-fast);
-        }
-
-        .lang-option.active {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* ===== TOAST NOTIFICATIONS ===== */
-        .toast-container {
-            position: fixed;
-            bottom: var(--space-xl);
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-sm);
-            pointer-events: none;
-        }
-
-        .toast {
-            padding: var(--space-lg) var(--space-xl);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-primary);
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all var(--transition-slow);
-            pointer-events: auto;
-            max-width: 400px;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success {
-            border-color: var(--bg-success);
-        }
-
-        .toast.error {
-            border-color: var(--bg-error);
-        }
-
-        .toast.warning {
-            border-color: var(--bg-warning);
-        }
-
-        /* ===== MODALS ===== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--overlay);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all var(--transition-normal);
-        }
-
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-primary);
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            transform: scale(0.9) translateY(20px);
-            transition: transform var(--transition-normal);
-        }
-
-        .modal-overlay.show .modal {
-            transform: scale(1) translateY(0);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-lg);
-            padding-bottom: var(--space-lg);
-            border-bottom: 1px solid var(--border-primary);
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        /* ===== RECORDING UI ===== */
-        .recording-ui {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-            padding: var(--space-lg);
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--space-md);
-        }
-
-        .recording-indicator {
-            width: 12px;
-            height: 12px;
-            background: var(--bg-error);
-            border-radius: 50%;
-            animation: pulse 1s infinite;
-        }
-
-        .recording-timer {
-            font-family: monospace;
-            font-weight: 600;
-        }
-
-        .recording-waveform {
-            flex: 1;
-            height: 40px;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-sm);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .recording-actions {
-            display: flex;
-            gap: var(--space-sm);
-        }
-
-        /* ===== ATTACHMENT CHIPS ===== */
-        .attachment-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-md);
-        }
-
-        .attachment-chip {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-sm) var(--space-md);
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            font-size: 12px;
-            position: relative;
-        }
-
-        .attachment-chip img {
-            width: 32px;
-            height: 32px;
-            object-fit: cover;
-            border-radius: var(--radius-sm);
-        }
-
-        .attachment-remove {
-            background: var(--bg-error);
-            color: var(--text-inverse);
-            border: none;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            position: absolute;
-            top: -6px;
-            inset-inline-end: -6px;
-        }
-
-        /* ===== RESPONSIVE DESIGN ===== */
-        @media (max-width: 768px) {
-            .app {
-                grid-template-columns: 1fr;
-                position: relative;
-            }
-
-            .sidebar {
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                inset-inline-start: 0;
-                width: 300px;
-                z-index: 1000;
-                transform: translateX(-100%);
-                box-shadow: var(--shadow-lg);
-            }
-
-            [dir="rtl"] .sidebar {
-                transform: translateX(100%);
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .sidebar-backdrop {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: var(--overlay);
-                z-index: 999;
-                opacity: 0;
-                visibility: hidden;
-                transition: all var(--transition-normal);
-            }
-
-            .sidebar-backdrop.show {
-                opacity: 1;
-                visibility: visible;
-            }
-
-            .header {
-                padding: var(--space-md);
-            }
-
-            .header-controls {
-                gap: var(--space-sm);
-            }
-
-            .control-group {
-                gap: var(--space-xs);
-            }
-
-            .messages {
-                padding: var(--space-lg);
-            }
-
-            .message {
-                max-width: 90%;
-            }
-
-            .composer {
-                padding: var(--space-md);
-            }
-
-            .composer-textarea {
-                padding-inline-end: 80px;
-            }
-
-            /* Hide some controls on mobile */
-            .mobile-hide {
-                display: none;
-            }
-        }
-
-        /* ===== ANIMATIONS ===== */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* ===== UTILITIES ===== */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .loading {
-            pointer-events: none;
-            opacity: 0.6;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-sm);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--text-tertiary);
-            border-radius: var(--radius-sm);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
-        }
-    </style>
+    <!-- Markdown & Code -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    
+    <!-- Tooltips -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    
+    <!-- Date/Time -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/relativeTime.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/localizedFormat.js"></script>
+    
+    <!-- Audio Waveform (lightweight) -->
+    <script src="https://unpkg.com/wavesurfer.js@7.7.0/dist/wavesurfer.esm.js" type="module"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
-<body>
-    <div class="app" id="app">
-        <!-- Sidebar Backdrop (Mobile) -->
-        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-        
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <!-- Command Palette -->
+    <div id="commandPalette" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeCommandPalette()"></div>
+        <div class="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-lg mx-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <input 
+                        id="commandInput" 
+                        type="text" 
+                        placeholder="اكتب أمر..." 
+                        class="w-full bg-transparent text-lg outline-none text-gray-900 dark:text-white"
+                        autocomplete="off"
+                    >
+                </div>
+                <div id="commandResults" class="max-h-80 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-40 space-y-2"></div>
+
+    <!-- Main Layout -->
+    <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-brand">
-                    <i data-lucide="bot" size="20"></i>
-                    <span data-i18n="appName">Chat AI</span>
+        <div id="sidebar" class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300">
+            <!-- Sidebar Header -->
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="message-circle" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Chat AI</h1>
+                    </div>
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
                 
-                <button class="btn btn-primary btn-full" id="newChatBtn">
-                    <i data-lucide="plus" size="16"></i>
-                    <span data-i18n="newChat">محادثة جديدة</span>
+                <button id="newChatBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 flex items-center justify-center space-x-2 space-x-reverse transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>محادثة جديدة</span>
                 </button>
-                
-                <div class="form-group">
-                    <label for="chatNameInput" data-i18n="chatNameLabel">اسم المحادثة</label>
-                    <input type="text" id="chatNameInput" class="input" data-i18n-placeholder="chatNamePlaceholder">
+            </div>
+
+            <!-- API Base URL -->
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رابط API</label>
+                <input 
+                    id="apiBaseUrl" 
+                    type="text" 
+                    value="http://localhost:8000"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                    placeholder="http://localhost:8000"
+                >
+            </div>
+
+            <!-- Chat Search -->
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="relative">
+                    <i data-lucide="search" class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    <input 
+                        id="chatSearch" 
+                        type="text" 
+                        placeholder="البحث في المحادثات..."
+                        class="w-full pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                    >
                 </div>
             </div>
 
-            <div class="sidebar-section">
-                <div class="section-title" data-i18n="apiSettings">إعدادات API</div>
-                <div class="form-group">
-                    <label for="apiBaseUrl" data-i18n="apiBaseUrl">رابط API الأساسي</label>
-                    <input type="url" id="apiBaseUrl" class="input" value="http://localhost:8000">
-                </div>
+            <!-- Chat List -->
+            <div class="flex-1 overflow-y-auto">
+                <div id="chatList" class="p-2 space-y-1"></div>
             </div>
-
-            <div class="chat-history">
-                <div class="section-title" data-i18n="chatHistory">المحادثات السابقة</div>
-                <ul class="chat-list" id="chatList">
-                    <!-- Chat items will be inserted here -->
-                </ul>
-            </div>
-        </aside>
+        </div>
 
         <!-- Main Content -->
-        <main class="main">
-            <header class="header">
-                <div class="header-left">
-                    <button class="btn-icon mobile-show" id="menuBtn" aria-label="Menu">
-                        <i data-lucide="menu" size="20"></i>
-                    </button>
-                    <h1 class="header-title" id="headerTitle" data-i18n="startConversation">ابدأ محادثة</h1>
-                    <span class="text-secondary" id="statusText"></span>
-                </div>
-
-                <div class="header-controls">
-                    <div class="control-group mobile-hide">
-                        <label for="providerSelect" class="sr-only" data-i18n="provider">مزود الخدمة</label>
-                        <select id="providerSelect" class="select" style="width: auto;">
-                            <option value="openai">OpenAI</option>
-                            <option value="groq">Groq</option>
-                            <option value="anthropic">Anthropic</option>
-                            <option value="google">Google</option>
-                            <option value="openrouter">OpenRouter</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group mobile-hide">
-                        <label for="modelSelect" class="sr-only" data-i18n="model">النموذج</label>
-                        <select id="modelSelect" class="select" style="width: auto;">
-                            <option value="gpt-4o-mini">GPT-4O Mini</option>
-                            <option value="gpt-4o">GPT-4O</option>
-                            <option value="llama-3.1-70b">Llama 3.1 70B</option>
-                            <option value="mixtral-8x7b">Mixtral 8x7B</option>
-                        </select>
-                    </div>
-
-                    <div class="language-toggle">
-                        <button class="lang-option active" data-lang="ar">ع</button>
-                        <button class="lang-option" data-lang="en">EN</button>
-                    </div>
-
-                    <div class="theme-switcher">
-                        <button class="theme-option active" data-theme="system">
-                            <i data-lucide="monitor" size="14"></i>
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i data-lucide="menu" class="w-5 h-5"></i>
                         </button>
-                        <button class="theme-option" data-theme="light">
-                            <i data-lucide="sun" size="14"></i>
+                        
+                        <!-- Provider & Model Selectors -->
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <select id="providerSelect" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm">
+                                <option value="groq">Groq</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic</option>
+                                <option value="google">Google</option>
+                            </select>
+                            
+                            <select id="modelSelect" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm">
+                                <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                                <option value="llama3-8b-8192">Llama 3 8B</option>
+                                <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <!-- Connection Status -->
+                        <div id="connectionStatus" class="flex items-center space-x-2 space-x-reverse px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span>متصل</span>
+                        </div>
+
+                        <!-- Language Toggle -->
+                        <button id="langToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="تغيير اللغة">
+                            <span class="text-sm font-medium">عربي</span>
                         </button>
-                        <button class="theme-option" data-theme="dark">
-                            <i data-lucide="moon" size="14"></i>
+
+                        <!-- Theme Toggle -->
+                        <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="تغيير المظهر">
+                            <i data-lucide="sun" class="w-5 h-5"></i>
+                        </button>
+
+                        <!-- Settings -->
+                        <button id="settingsBtn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="الإعدادات">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
                         </button>
                     </div>
                 </div>
             </header>
 
-            <div class="messages" id="messagesContainer">
-                <!-- Messages will be inserted here -->
-                <div class="message assistant">
-                    <div class="message-bubble" data-i18n="welcomeMessage">
-                        أهلاً بك! اختر محادثة من القائمة أو أنشئ واحدة جديدة.
+            <!-- Messages Area -->
+            <div id="messagesArea" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- Welcome Message -->
+                <div id="welcomeMessage" class="text-center py-12">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                        <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
                     </div>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">مرحباً بك في Chat AI</h2>
+                    <p class="text-gray-600 dark:text-gray-400">ابدأ محادثة جديدة أو اختر محادثة موجودة من الشريط الجانبي</p>
                 </div>
             </div>
 
-            <div class="composer">
-                <div class="attachment-chips" id="attachmentChips"></div>
-                
-                <div class="recording-ui hidden" id="recordingUI">
-                    <div class="recording-indicator"></div>
-                    <span class="recording-timer" id="recordingTimer">00:00</span>
-                    <div class="recording-waveform">
-                        <canvas id="waveformCanvas" width="200" height="40"></canvas>
-                    </div>
-                    <div class="recording-actions">
-                        <button class="btn-icon" id="pauseRecordingBtn" title="Pause">
-                            <i data-lucide="pause" size="16"></i>
-                        </button>
-                        <button class="btn-icon" id="stopRecordingBtn" title="Stop">
-                            <i data-lucide="square" size="16"></i>
-                        </button>
-                        <button class="btn-icon" id="deleteRecordingBtn" title="Delete">
-                            <i data-lucide="trash-2" size="16"></i>
-                        </button>
+            <!-- Composer -->
+            <div id="composer" class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+                <!-- Attachments Preview -->
+                <div id="attachmentsPreview" class="mb-3 hidden">
+                    <div class="flex flex-wrap gap-2" id="attachmentsList"></div>
+                </div>
+
+                <!-- Voice Recording UI -->
+                <div id="recordingUI" class="mb-3 hidden">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3 space-x-reverse">
+                                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                <span class="text-red-700 dark:text-red-400 font-medium">جاري التسجيل</span>
+                                <span id="recordingTimer" class="text-red-600 dark:text-red-400 font-mono">00:00</span>
+                            </div>
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <button id="pauseRecordingBtn" class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40">
+                                    <i data-lucide="pause" class="w-4 h-4 text-red-600"></i>
+                                </button>
+                                <button id="stopRecordingBtn" class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40">
+                                    <i data-lucide="square" class="w-4 h-4 text-red-600"></i>
+                                </button>
+                                <button id="deleteRecordingBtn" class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40">
+                                    <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="waveform" class="mt-2 h-12 bg-red-100 dark:bg-red-900/30 rounded"></div>
                     </div>
                 </div>
 
-                <form class="composer-form" id="messageForm">
-                    <div class="composer-input-container">
+                <div class="flex items-end space-x-3 space-x-reverse">
+                    <!-- Attachment Button -->
+                    <button id="attachBtn" class="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="إرفاق ملف">
+                        <i data-lucide="paperclip" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+
+                    <!-- Voice Button -->
+                    <button id="voiceBtn" class="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="تسجيل صوتي">
+                        <i data-lucide="mic" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+
+                    <!-- Message Input -->
+                    <div class="flex-1 relative">
                         <textarea 
                             id="messageInput" 
-                            class="composer-textarea" 
+                            placeholder="اكتب رسالتك هنا..."
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             rows="1"
-                            data-i18n-placeholder="messageInputPlaceholder"
+                            maxlength="4000"
                         ></textarea>
-                        
-                        <div class="composer-actions">
-                            <input type="file" id="imageInput" accept="image/*" class="hidden" multiple>
-                            <button type="button" class="composer-btn" id="attachImageBtn" title="Attach Image">
-                                <i data-lucide="image" size="16"></i>
-                            </button>
-                            
-                            <button type="button" class="composer-btn" id="recordAudioBtn" title="Record Audio">
-                                <i data-lucide="mic" size="16"></i>
-                            </button>
+                        <div class="absolute bottom-2 left-2 text-xs text-gray-400">
+                            <span id="charCount">0</span>/4000
                         </div>
                     </div>
-                    
-                    <button type="submit" class="send-btn" id="sendBtn" disabled>
-                        <i data-lucide="send" size="20"></i>
+
+                    <!-- Send Button -->
+                    <button id="sendBtn" class="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="إرسال">
+                        <i data-lucide="send" class="w-5 h-5"></i>
                     </button>
-                </form>
-            </div>
-        </main>
-    </div>
+                </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Audio Preview Modal -->
-    <div class="modal-overlay" id="audioPreviewModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" data-i18n="audioPreview">معاينة الصوت</h3>
-                <button class="btn-icon" id="closeAudioPreview">
-                    <i data-lucide="x" size="20"></i>
-                </button>
-            </div>
-            <audio id="audioPreviewPlayer" controls style="width: 100%; margin-bottom: 1rem;"></audio>
-            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                <button class="btn btn-secondary" id="discardAudioBtn" data-i18n="discard">إلغاء</button>
-                <button class="btn btn-primary" id="useAudioBtn" data-i18n="useAudio">استخدام</button>
+                <!-- Quick Actions -->
+                <div id="quickActions" class="mt-2 flex flex-wrap gap-2 hidden">
+                    <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600" data-template="/summarize">
+                        تلخيص
+                    </button>
+                    <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600" data-template="/translate en">
+                        ترجم للإنجليزية
+                    </button>
+                    <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600" data-template="/explain">
+                        اشرح
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // ===== INTERNATIONALIZATION =====
-        const i18n = {
-            ar: {
-                appName: "Chat AI",
-                newChat: "محادثة جديدة",
-                chatNameLabel: "اسم المحادثة",
-                chatNamePlaceholder: "اسم المحادثة",
-                apiSettings: "إعدادات API",
-                apiBaseUrl: "رابط API الأساسي",
-                chatHistory: "المحادثات السابقة",
-                startConversation: "ابدأ محادثة",
-                provider: "مزود الخدمة",
-                model: "النموذج",
-                language: "اللغة",
-                theme: "الوضع",
-                light: "فاتح",
-                dark: "داكن",
-                system: "افتراضي النظام",
-                messageInputPlaceholder: "اكتب رسالتك هنا…",
-                welcomeMessage: "أهلاً بك! اختر محادثة من القائمة أو أنشئ واحدة جديدة.",
-                typing: "يفكر...",
-                loadingMessages: "جاري تحميل الرسائل...",
-                emptyChat: "محادثة فارغة. ابدأ بالكتابة!",
-                attachImage: "إرفاق صورة",
-                recordAudio: "تسجيل صوت",
-                audioPreview: "معاينة الصوت",
-                discard: "إلغاء",
-                useAudio: "استخدام",
-                errorServer: "خطأ في السيرفر",
-                failedOpenChat: "فشل في تحميل المحادثة.",
-                failedHistory: "فشل في جلب قائمة المحادثات.",
-                chatCreated: (name) => `تم إنشاء محادثة: ${name}`,
-                chatNameRequired: "الرجاء كتابة اسم للمحادثة أولاً.",
-                emptyMessage: "لا يمكن إرسال رسالة فارغة.",
-                noActiveChat: "لا يمكن إرسال رسالة بدون تحديد محادثة.",
-                microphonePermission: "الرجاء السماح بالوصول للميكروفون.",
-                recordingError: "خطأ في التسجيل.",
-                noChats: "لا توجد محادثات",
-                copy: "نسخ",
-                delete: "حذف",
-                regenerate: "إعادة توليد"
-            },
-            en: {
-                appName: "Chat AI",
-                newChat: "New Chat",
-                chatNameLabel: "Chat Name",
-                chatNamePlaceholder: "Conversation name",
-                apiSettings: "API Settings",
-                apiBaseUrl: "API Base URL",
-                chatHistory: "Chat History",
-                startConversation: "Start a conversation",
-                provider: "Provider",
-                model: "Model",
-                language: "Language",
-                theme: "Theme",
-                light: "Light",
-                dark: "Dark",
-                system: "System",
-                messageInputPlaceholder: "Type your message…",
-                welcomeMessage: "Welcome! Choose a chat from the list or create a new one.",
-                typing: "Thinking...",
-                loadingMessages: "Loading messages...",
-                emptyChat: "Empty conversation. Start typing!",
-                attachImage: "Attach Image",
-                recordAudio: "Record Audio",
-                audioPreview: "Audio Preview",
-                discard: "Discard",
-                useAudio: "Use Audio",
-                errorServer: "Server error",
-                failedOpenChat: "Failed to load conversation.",
-                failedHistory: "Failed to load chat list.",
-                chatCreated: (name) => `Created chat: ${name}`,
-                chatNameRequired: "Please enter a chat name first.",
-                emptyMessage: "Cannot send empty message.",
-                noActiveChat: "Cannot send message without selecting a chat.",
-                microphonePermission: "Please allow microphone access.",
-                recordingError: "Recording error.",
-                noChats: "No conversations",
-                copy: "Copy",
-                delete: "Delete",
-                regenerate: "Regenerate"
-            }
-        };
-
-        // ===== GLOBAL STATE =====
-        let currentLanguage = 'ar';
-        let currentTheme = 'system';
-        let currentChat = null;
-        let attachments = [];
-        let isRecording = false;
-        let mediaRecorder = null;
-        let recordingData = [];
-        let recordingStartTime = null;
-        let recordingTimer = null;
-        let audioContext = null;
-        let analyser = null;
-        let waveformAnimationId = null;
-
-        // Model mappings by provider
-        const modelsByProvider = {
-            openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
-            groq: ['llama-3.1-70b', 'mixtral-8x7b', 'gemma-7b'],
-            anthropic: ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
-            google: ['gemini-pro', 'gemini-pro-vision'],
-            openrouter: ['openai/gpt-4o', 'anthropic/claude-3-opus', 'meta-llama/llama-3.1-70b']
-        };
-
-        // ===== DOM ELEMENTS =====
-        const elements = {
-            // Core elements
-            app: document.getElementById('app'),
-            sidebar: document.getElementById('sidebar'),
-            sidebarBackdrop: document.getElementById('sidebarBackdrop'),
-            menuBtn: document.getElementById('menuBtn'),
-            
-            // Chat elements
-            newChatBtn: document.getElementById('newChatBtn'),
-            chatNameInput: document.getElementById('chatNameInput'),
-            chatList: document.getElementById('chatList'),
-            headerTitle: document.getElementById('headerTitle'),
-            statusText: document.getElementById('statusText'),
-            messagesContainer: document.getElementById('messagesContainer'),
-            
-            // Form elements
-            messageForm: document.getElementById('messageForm'),
-            messageInput: document.getElementById('messageInput'),
-            sendBtn: document.getElementById('sendBtn'),
-            
-            // Settings elements
-            apiBaseUrl: document.getElementById('apiBaseUrl'),
-            providerSelect: document.getElementById('providerSelect'),
-            modelSelect: document.getElementById('modelSelect'),
-            
-            // UI control elements
-            langToggle: document.querySelectorAll('.lang-option'),
-            themeToggle: document.querySelectorAll('.theme-option'),
-            
-            // Attachment elements
-            imageInput: document.getElementById('imageInput'),
-            attachImageBtn: document.getElementById('attachImageBtn'),
-            attachmentChips: document.getElementById('attachmentChips'),
-            
-            // Recording elements
-            recordAudioBtn: document.getElementById('recordAudioBtn'),
-            recordingUI: document.getElementById('recordingUI'),
-            recordingTimer: document.getElementById('recordingTimer'),
-            waveformCanvas: document.getElementById('waveformCanvas'),
-            pauseRecordingBtn: document.getElementById('pauseRecordingBtn'),
-            stopRecordingBtn: document.getElementById('stopRecordingBtn'),
-            deleteRecordingBtn: document.getElementById('deleteRecordingBtn'),
-            
-            // Modal elements
-            audioPreviewModal: document.getElementById('audioPreviewModal'),
-            audioPreviewPlayer: document.getElementById('audioPreviewPlayer'),
-            closeAudioPreview: document.getElementById('closeAudioPreview'),
-            discardAudioBtn: document.getElementById('discardAudioBtn'),
-            useAudioBtn: document.getElementById('useAudioBtn'),
-            
-            // Toast container
-            toastContainer: document.getElementById('toastContainer')
-        };
-
-        // ===== UTILITY FUNCTIONS =====
-        function t(key, ...args) {
-            const translation = i18n[currentLanguage][key];
-            if (typeof translation === 'function') {
-                return translation(...args);
-            }
-            return translation || key;
-        }
-
-        function updateUI() {
-            // Update language attributes
-            document.documentElement.lang = currentLanguage;
-            document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
-            
-            // Update all translatable elements
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.dataset.i18n;
-                el.textContent = t(key);
-            });
-            
-            // Update placeholders
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.dataset.i18nPlaceholder;
-                el.placeholder = t(key);
-            });
-            
-            // Re-render Lucide icons
-            lucide.createIcons();
-        }
-
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            const icon = type === 'success' ? 'check-circle' : 
-                        type === 'error' ? 'alert-circle' : 
-                        type === 'warning' ? 'alert-triangle' : 'info';
-            
-            toast.innerHTML = `
-                <i data-lucide="${icon}" size="16"></i>
-                <span>${message}</span>
-            `;
-            
-            elements.toastContainer.appendChild(toast);
-            lucide.createIcons();
-            
-            // Show toast
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
-            
-            // Auto hide after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 300);
-            }, 3000);
-        }
-
-        function saveSettings() {
-            const settings = {
-                apiBaseUrl: elements.apiBaseUrl.value,
-                theme: currentTheme,
-                language: currentLanguage,
-                provider: elements.providerSelect.value,
-                model: elements.modelSelect.value,
-                lastChat: currentChat
-            };
-            localStorage.setItem('chatSettings', JSON.stringify(settings));
-        }
-
-        function loadSettings() {
-            try {
-                const settings = JSON.parse(localStorage.getItem('chatSettings') || '{}');
-                
-                if (settings.apiBaseUrl) {
-                    elements.apiBaseUrl.value = settings.apiBaseUrl;
-                }
-                
-                if (settings.theme) {
-                    currentTheme = settings.theme;
-                    applyTheme(currentTheme);
-                }
-                
-                if (settings.language) {
-                    currentLanguage = settings.language;
-                }
-                
-                if (settings.provider) {
-                    elements.providerSelect.value = settings.provider;
-                    updateModelOptions();
-                }
-                
-                if (settings.model) {
-                    elements.modelSelect.value = settings.model;
-                }
-                
-                return settings.lastChat;
-            } catch (error) {
-                console.error('Error loading settings:', error);
-                return null;
-            }
-        }
-
-        function applyTheme(theme) {
-            currentTheme = theme;
-            document.documentElement.dataset.theme = theme;
-            
-            // Update theme toggle buttons
-            elements.themeToggle.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.theme === theme);
-            });
-            
-            saveSettings();
-        }
-
-        function updateModelOptions() {
-            const provider = elements.providerSelect.value;
-            const models = modelsByProvider[provider] || [];
-            
-            elements.modelSelect.innerHTML = '';
-            models.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model;
-                option.textContent = model.toUpperCase();
-                elements.modelSelect.appendChild(option);
-            });
-            
-            if (models.length > 0) {
-                elements.modelSelect.value = models[0];
-            }
-        }
-
-        // ===== MESSAGE FUNCTIONS =====
-        function createMessage(role, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.className = 'message-bubble';
-            bubbleDiv.textContent = content;
-            
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'message-actions';
-            
-            // Add action buttons
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'action-btn';
-            copyBtn.innerHTML = '<i data-lucide="copy" size="14"></i>';
-            copyBtn.title = t('copy');
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(content);
-                showToast(t('copied'), 'success');
-            };
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'action-btn';
-            deleteBtn.innerHTML = '<i data-lucide="trash-2" size="14"></i>';
-            deleteBtn.title = t('delete');
-            deleteBtn.onclick = () => {
-                messageDiv.remove();
-            };
-            
-            actionsDiv.appendChild(copyBtn);
-            actionsDiv.appendChild(deleteBtn);
-            
-            if (role === 'assistant') {
-                const regenerateBtn = document.createElement('button');
-                regenerateBtn.className = 'action-btn';
-                regenerateBtn.innerHTML = '<i data-lucide="refresh-cw" size="14"></i>';
-                regenerateBtn.title = t('regenerate');
-                regenerateBtn.onclick = () => {
-                    // Find the last user message and resend it
-                    const messages = elements.messagesContainer.querySelectorAll('.message.user');
-                    if (messages.length > 0) {
-                        const lastUserMessage = messages[messages.length - 1];
-                        const userContent = lastUserMessage.querySelector('.message-bubble').textContent;
-                        elements.messageInput.value = userContent;
-                        elements.messageForm.dispatchEvent(new Event('submit'));
-                    }
-                };
-                actionsDiv.appendChild(regenerateBtn);
-            }
-            
-            messageDiv.appendChild(bubbleDiv);
-            messageDiv.appendChild(actionsDiv);
-            
-            elements.messagesContainer.appendChild(messageDiv);
-            scrollToBottom();
-            
-            lucide.createIcons();
-            return messageDiv;
-        }
-
-        function scrollToBottom() {
-            elements.messagesContainer.scrollTo({
-                top: elements.messagesContainer.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-
-        // ===== ATTACHMENT FUNCTIONS =====
-        function addAttachment(file, type = 'image') {
-            const attachment = {
-                file,
-                type,
-                name: file.name,
-                mime: file.type,
-                data: null
-            };
-            
-            // Convert to base64
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                attachment.data = e.target.result.split(',')[1]; // Remove data:xxx;base64, prefix
-                attachments.push(attachment);
-                renderAttachmentChips();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeAttachment(index) {
-            attachments.splice(index, 1);
-            renderAttachmentChips();
-        }
-
-        function renderAttachmentChips() {
-            elements.attachmentChips.innerHTML = '';
-            
-            attachments.forEach((attachment, index) => {
-                const chip = document.createElement('div');
-                chip.className = 'attachment-chip';
-                
-                if (attachment.type === 'image') {
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(attachment.file);
-                    chip.appendChild(img);
-                } else {
-                    const icon = document.createElement('i');
-                    icon.setAttribute('data-lucide', 'mic');
-                    icon.setAttribute('size', '16');
-                    chip.appendChild(icon);
-                }
-                
-                const name = document.createElement('span');
-                name.textContent = attachment.name;
-                chip.appendChild(name);
-                
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'attachment-remove';
-                removeBtn.innerHTML = '×';
-                removeBtn.onclick = () => removeAttachment(index);
-                chip.appendChild(removeBtn);
-                
-                elements.attachmentChips.appendChild(chip);
-            });
-            
-            lucide.createIcons();
-        }
-
-        // ===== RECORDING FUNCTIONS =====
-        async function startRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                mediaRecorder = new MediaRecorder(stream);
-                recordingData = [];
-                recordingStartTime = Date.now();
-                
-                // Setup audio context for waveform
-                audioContext = new AudioContext();
-                analyser = audioContext.createAnalyser();
-                const source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
-                
-                analyser.fftSize = 256;
-                drawWaveform();
-                
-                mediaRecorder.ondataavailable = (event) => {
-                    recordingData.push(event.data);
-                };
-                
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(recordingData, { type: 'audio/webm' });
-                    showAudioPreview(blob);
-                };
-                
-                mediaRecorder.start();
-                isRecording = true;
-                
-                elements.recordingUI.classList.remove('hidden');
-                elements.recordAudioBtn.style.display = 'none';
-                
-                // Start timer
-                recordingTimer = setInterval(updateRecordingTimer, 1000);
-                
-            } catch (error) {
-                console.error('Error starting recording:', error);
-                showToast(t('microphonePermission'), 'error');
-            }
-        }
-
-        function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state === 'recording') {
-                mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            }
-            
-            isRecording = false;
-            clearInterval(recordingTimer);
-            
-            elements.recordingUI.classList.add('hidden');
-            elements.recordAudioBtn.style.display = 'flex';
-            
-            if (waveformAnimationId) {
-                cancelAnimationFrame(waveformAnimationId);
-            }
-            
-            if (audioContext) {
-                audioContext.close();
-            }
-        }
-
-        function updateRecordingTimer() {
-            const elapsed = Date.now() - recordingStartTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            elements.recordingTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function drawWaveform() {
-            if (!isRecording) return;
-            
-            const canvas = elements.waveformCanvas;
-            const ctx = canvas.getContext('2d');
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            analyser.getByteFrequencyData(dataArray);
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const barWidth = canvas.width / dataArray.length;
-            let x = 0;
-            
-            for (let i = 0; i < dataArray.length; i++) {
-                const barHeight = (dataArray[i] / 255) * canvas.height;
-                
-                ctx.fillStyle = `hsl(${200 + (dataArray[i] / 255) * 100}, 70%, 50%)`;
-                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                
-                x += barWidth;
-            }
-            
-            waveformAnimationId = requestAnimationFrame(drawWaveform);
-        }
-
-        function showAudioPreview(blob) {
-            const url = URL.createObjectURL(blob);
-            elements.audioPreviewPlayer.src = url;
-            elements.audioPreviewModal.classList.add('show');
-            
-            // Store the blob for later use
-            elements.audioPreviewModal.audioBlob = blob;
-        }
-
-        // ===== CHAT FUNCTIONS =====
-        async function loadChatHistory() {
-            try {
-                const response = await fetch(`${elements.apiBaseUrl.value}/history_chat`);
-                if (!response.ok) throw new Error(t('failedHistory'));
-                
-                const data = await response.json();
-                
-                elements.chatList.innerHTML = '';
-                
-                if (data.chats && data.chats.length > 0) {
-                    data.chats.forEach(chatName => {
-                        const li = document.createElement('li');
-                        li.className = 'chat-item';
-                        li.textContent = chatName;
-                        li.title = chatName;
-                        li.onclick = () => openChat(chatName, li);
-                        elements.chatList.appendChild(li);
-                    });
-                    
-                    // Auto-open first chat or last opened chat
-                    const lastChat = loadSettings();
-                    if (lastChat) {
-                        const chatItem = Array.from(elements.chatList.children).find(li => li.textContent === lastChat);
-                        if (chatItem) {
-                            chatItem.click();
-                        }
-                    } else {
-                        elements.chatList.firstChild?.click();
-                    }
-                } else {
-                    elements.headerTitle.textContent = t('noChats');
-                }
-            } catch (error) {
-                console.error('Error loading chat history:', error);
-                showToast(t('failedHistory'), 'error');
-            }
-        }
-
-        async function openChat(chatName, liElement) {
-            // Update UI immediately
-            elements.headerTitle.textContent = chatName;
-            elements.messagesContainer.innerHTML = `
-                <div class="message assistant">
-                    <div class="message-bubble">${t('loadingMessages')}</div>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeSettings()"></div>
+        <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md mx-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">الإعدادات</h3>
                 </div>
-            `;
-            
-            // Update active chat item
-            document.querySelectorAll('.chat-item').forEach(li => li.classList.remove('active'));
-            if (liElement) liElement.classList.add('active');
-            
-            currentChat = chatName;
-            saveSettings();
-            
-            try {
-                const response = await fetch(`${elements.apiBaseUrl.value}/chats/open_chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: chatName })
-                });
-                
-                if (!response.ok) throw new Error(`${t('errorServer')}: ${response.status}`);
-                
-                const data = await response.json();
-                elements.messagesContainer.innerHTML = '';
-                
-                if (data?.jsonl) {
-                    const lines = data.jsonl.trim().split('\n');
-                    
-                    lines.forEach(line => {
-                        if (!line) return;
-                        
-                        let obj;
-                        try {
-                            obj = JSON.parse(line);
-                        } catch {
-                            return;
-                        }
-                        
-                        if (!obj || obj.info || !obj.chats) return;
-                        
-                        const messages = Array.isArray(obj.chats?.messages) ? obj.chats.messages : [];
-                        
-                        messages.forEach(message => {
-                            if (!message || !message.content?.trim()) return;
-                            
-                            const role = message.role === 'user' ? 'user' : 'assistant';
-                            createMessage(role, message.content);
-                        });
-                    });
-                }
-                
-                if (elements.messagesContainer.children.length === 0) {
-                    createMessage('assistant', t('emptyChat'));
-                }
-                
-            } catch (error) {
-                console.error('Error opening chat:', error);
-                showToast(t('failedOpenChat'), 'error');
-                elements.messagesContainer.innerHTML = `
-                    <div class="message assistant">
-                        <div class="message-bubble" style="color: var(--bg-error);">${error.message}</div>
+                <div class="p-6 space-y-4">
+                    <!-- Theme Setting -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المظهر</label>
+                        <select id="themeSelect" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                            <option value="system">تلقائي</option>
+                            <option value="light">فاتح</option>
+                            <option value="dark">داكن</option>
+                        </select>
                     </div>
-                `;
-            }
-        }
 
-        async function createNewChat() {
-            const name = elements.chatNameInput.value.trim();
-            
-            if (!name) {
-                showToast(t('chatNameRequired'), 'warning');
-                elements.chatNameInput.focus();
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${elements.apiBaseUrl.value}/chats/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name })
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || `${t('errorServer')}: ${response.status}`);
-                }
-                
-                await response.json();
-                showToast(t('chatCreated', name), 'success');
-                elements.chatNameInput.value = '';
-                
-                await loadChatHistory();
-                
-            } catch (error) {
-                console.error('Error creating chat:', error);
-                showToast(`${t('errorServer')}: ${error.message}`, 'error');
-            }
-        }
+                    <!-- Language Setting -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اللغة</label>
+                        <select id="languageSelect" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                            <option value="ar">العربية</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
 
-        async function sendMessage(content, attachments = []) {
-            if (!currentChat) {
-                showToast(t('noActiveChat'), 'warning');
-                return;
-            }
-            
-            if (!content.trim() && attachments.length === 0) {
-                showToast(t('emptyMessage'), 'warning');
-                return;
-            }
-            
-            // Create user message
-            createMessage('user', content);
-            
-            // Add attachments to user message if any
-            if (attachments.length > 0) {
-                const lastMessage = elements.messagesContainer.lastElementChild;
-                const bubble = lastMessage.querySelector('.message-bubble');
-                
-                attachments.forEach(attachment => {
-                    const preview = document.createElement('div');
-                    preview.className = 'attachment-preview';
-                    
-                    if (attachment.type === 'image') {
-                        const img = document.createElement('img');
-                        img.className = 'attachment-image';
-                        img.src = URL.createObjectURL(attachment.file);
-                        preview.appendChild(img);
-                    } else {
-                        preview.innerHTML = `
-                            <i data-lucide="mic" size="16"></i>
-                            <span>${attachment.name}</span>
-                        `;
-                    }
-                    
-                    bubble.appendChild(preview);
-                });
-            }
-            
-            // Clear form
-            elements.messageInput.value = '';
-            elements.messageInput.style.height = 'auto';
-            attachments.length = 0;
-            renderAttachmentChips();
-            
-            // Update UI state
-            elements.sendBtn.disabled = true;
-            elements.statusText.textContent = t('typing');
-            
-            // Create assistant message with typing indicator
-            const assistantMessage = createMessage('assistant', '');
-            const bubble = assistantMessage.querySelector('.message-bubble');
-            bubble.innerHTML = '<span class="typing-indicator">▋</span>';
-            
-            try {
-                const requestBody = {
-                    content: content,
-                    attachments: attachments.map(att => ({
-                        type: att.type,
-                        name: att.name,
-                        mime: att.mime,
-                        data: att.data
-                    }))
-                };
-                
-                const response = await fetch(`${elements.apiBaseUrl.value}/chats/send?name=${encodeURIComponent(currentChat)}&stream=1`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
-                });
-                
-                if (!response.ok) throw new Error(`${t('errorServer')}: ${response.status}`);
-                if (!response.body) throw new Error('Response body is null');
-                
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let firstChunk = true;
-                
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    
-                    if (firstChunk) {
-                        bubble.innerHTML = '';
-                        firstChunk = false;
-                    }
-                    
-                    const chunk = decoder.decode(value, { stream: true });
-                    bubble.textContent += chunk;
-                    scrollToBottom();
-                }
-                
-            } catch (error) {
-                console.error('Streaming error:', error);
-                bubble.textContent = `${t('errorServer')}: ${error.message}`;
-                bubble.style.color = 'var(--bg-error)';
-            } finally {
-                elements.statusText.textContent = '';
-                elements.sendBtn.disabled = false;
-                elements.messageInput.focus();
-            }
-        }
+                    <!-- Density Setting -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كثافة العرض</label>
+                        <select id="densitySelect" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                            <option value="cozy">مريح</option>
+                            <option value="compact">مضغوط</option>
+                        </select>
+                    </div>
 
-        // ===== AUTO-RESIZE TEXTAREA =====
-        function autoResizeTextarea() {
-            elements.messageInput.style.height = 'auto';
-            elements.messageInput.style.height = elements.messageInput.scrollHeight + 'px';
-            
-            // Enable/disable send button
-            const hasContent = elements.messageInput.value.trim().length > 0;
-            const hasAttachments = attachments.length > 0;
-            elements.sendBtn.disabled = !hasContent && !hasAttachments;
-        }
+                    <!-- Font Size -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">حجم الخط</label>
+                        <input type="range" id="fontSizeRange" min="12" max="18" value="14" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>صغير</span>
+                            <span>كبير</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3 space-x-reverse">
+                    <button onclick="closeSettings()" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                        إلغاء
+                    </button>
+                    <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                        حفظ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // ===== EVENT LISTENERS =====
-        function setupEventListeners() {
-            // Mobile menu toggle
-            elements.menuBtn?.addEventListener('click', () => {
-                elements.sidebar.classList.toggle('show');
-                elements.sidebarBackdrop.classList.toggle('show');
-            });
-            
-            elements.sidebarBackdrop.addEventListener('click', () => {
-                elements.sidebar.classList.remove('show');
-                elements.sidebarBackdrop.classList.remove('show');
-            });
-            
-            // Language toggle
-            elements.langToggle.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentLanguage = btn.dataset.lang;
-                    
-                    elements.langToggle.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    updateUI();
-                    saveSettings();
-                });
-            });
-            
-            // Theme toggle
-            elements.themeToggle.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    applyTheme(btn.dataset.theme);
-                });
-            });
-            
-            // Provider change
-            elements.providerSelect.addEventListener('change', () => {
-                updateModelOptions();
-                saveSettings();
-            });
-            
-            // Model change
-            elements.modelSelect.addEventListener('change', () => {
-                saveSettings();
-            });
-            
-            // API base URL change
-            elements.apiBaseUrl.addEventListener('change', () => {
-                saveSettings();
-                loadChatHistory();
-            });
-            
-            // New chat
-            elements.newChatBtn.addEventListener('click', createNewChat);
-            
-            // Chat name input
-            elements.chatNameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    createNewChat();
-                }
-            });
-            
-            // Message form
-            elements.messageForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const content = elements.messageInput.value.trim();
-                if (content || attachments.length > 0) {
-                    sendMessage(content, [...attachments]);
-                }
-            });
-            
-            // Message input
-            elements.messageInput.addEventListener('input', autoResizeTextarea);
-            elements.messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    elements.messageForm.dispatchEvent(new Event('submit'));
-                }
-            });
-            
-            // Paste handling for images
-            elements.messageInput.addEventListener('paste', (e) => {
-                const items = e.clipboardData?.items;
-                if (!items) return;
-                
-                for (const item of items) {
-                    if (item.type.startsWith('image/')) {
-                        const file = item.getAsFile();
-                        if (file) {
-                            addAttachment(file, 'image');
-                        }
-                    }
-                }
-            });
-            
-            // Image attachment
-            elements.attachImageBtn.addEventListener('click', () => {
-                elements.imageInput.click();
-            });
-            
-            elements.imageInput.addEventListener('change', (e) => {
-                const files = Array.from(e.target.files);
-                files.forEach(file => {
-                    addAttachment(file, 'image');
-                });
-                e.target.value = ''; // Reset input
-            });
-            
-            // Drag and drop
-            elements.messageInput.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            });
-            
-            elements.messageInput.addEventListener('drop', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const files = Array.from(e.dataTransfer.files);
-                files.forEach(file => {
-                    if (file.type.startsWith('image/')) {
-                        addAttachment(file, 'image');
-                    }
-                });
-            });
-            
-            // Recording
-            elements.recordAudioBtn.addEventListener('click', startRecording);
-            elements.stopRecordingBtn.addEventListener('click', stopRecording);
-            elements.deleteRecordingBtn.addEventListener('click', stopRecording);
-            
-            // Audio preview modal
-            elements.closeAudioPreview.addEventListener('click', () => {
-                elements.audioPreviewModal.classList.remove('show');
-            });
-            
-            elements.discardAudioBtn.addEventListener('click', () => {
-                elements.audioPreviewModal.classList.remove('show');
-            });
-            
-            elements.useAudioBtn.addEventListener('click', () => {
-                const blob = elements.audioPreviewModal.audioBlob;
-                if (blob) {
-                    const file = new File([blob], `recording_${Date.now()}.webm`, { type: 'audio/webm' });
-                    addAttachment(file, 'audio');
-                }
-                elements.audioPreviewModal.classList.remove('show');
-            });
-            
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                    e.preventDefault();
-                    elements.messageInput.focus();
-                }
-                
-                if (e.altKey && e.key === 'n') {
-                    e.preventDefault();
-                    elements.chatNameInput.focus();
-                }
-            });
-        }
+    <!-- Hidden File Input -->
+    <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
 
-        // ===== INITIALIZATION =====
-        function init() {
-            loadSettings();
-            updateUI();
-            setupEventListeners();
-            updateModelOptions();
-            loadChatHistory();
-            
-            // Set initial language
-            elements.langToggle.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
-            });
-            
-            // Focus message input
-            elements.messageInput.focus();
-            
-            console.log('Chat application initialized');
-        }
-
-        // Start the application when DOM is loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    </script>
+    <!-- Scripts -->
+    <script src="components/i18n.js"></script>
+    <script src="components/theme.js"></script>
+    <script src="components/store.js"></script>
+    <script src="components/api.js"></script>
+    <script src="components/toast.js"></script>
+    <script src="components/modal.js"></script>
+    <script src="components/recorder.js"></script>
+    <script src="components/attachments.js"></script>
+    <script src="app/app.js"></script>
 </body>
 </html>
