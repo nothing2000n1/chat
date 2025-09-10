@@ -576,13 +576,13 @@ class ChatApp {
         
         const indicator = document.createElement('div');
         indicator.id = 'typingIndicator';
-        indicator.className = 'flex justify-start mb-4';
+        indicator.className = 'flex justify-end mb-4'; // Assistant side (right)
         indicator.innerHTML = `
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 max-w-xs">
+            <div class="message-assistant rounded-2xl p-4 max-w-xs ml-auto rounded-tl-sm">
                 <div class="flex space-x-1">
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot" style="animation-delay: 0.1s"></div>
+                    <div class="typing-dot" style="animation-delay: 0.2s"></div>
                 </div>
             </div>
         `;
