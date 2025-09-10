@@ -87,7 +87,9 @@ class ApiClient {
     // Chat API methods
     async getHistory() {
         try {
-            const response = await this.requestWithRetry('/history_chat');
+            const response = await this.requestWithRetry('/history_chat', {
+                method: 'GET'
+            });
             return response.chats || [];
         } catch (error) {
             console.error('Error fetching chat history:', error);
@@ -132,7 +134,7 @@ class ApiClient {
             attachments
         };
 
-        const url = `/chats/send?name=${encodeURIComponent(chatName)}&stream=${stream ? '1' : '0'}`;
+        const url = `/chats/send?name=${encodeURIComponent(chatName)}&stream=${stream}`;
 
         try {
             if (stream) {

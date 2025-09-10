@@ -15,7 +15,7 @@ class ToastManager {
         if (!this.container) {
             this.container = document.createElement('div');
             this.container.id = 'toastContainer';
-            this.container.className = 'fixed top-4 right-4 z-40 space-y-2';
+            this.container.className = 'fixed top-4 right-4 z-50 space-y-2';
             document.body.appendChild(this.container);
         }
     }

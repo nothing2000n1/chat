@@ -307,11 +307,13 @@ class ChatApp {
     // Chat Management
     async loadChatHistory() {
         try {
+            console.log('Loading chat history...');
             this.chats = await window.apiClient?.getHistory() || [];
+            console.log('Loaded chats:', this.chats);
             this.renderChatList();
         } catch (error) {
             console.error('Error loading chat history:', error);
-            window.toast?.error('Error loading chat history');
+            window.toast?.error(window.i18n?.t('networkError') || 'Error loading chat history');
         }
     }
 
@@ -379,10 +381,11 @@ class ChatApp {
     }
 
     async showNewChatDialog() {
-        const chatName = prompt(window.i18n?.t('enterChatName') || 'Enter chat name:');
+        const chatName = prompt('Enter chat name:');
         if (!chatName) return;
         
         try {
+            console.log('Creating chat:', chatName);
             await window.apiClient?.createChat(chatName);
             await this.loadChatHistory();
             await this.openChat(chatName);
@@ -397,9 +400,11 @@ class ChatApp {
         if (this.currentChat === chatName) return;
         
         try {
+            console.log('Opening chat:', chatName);
             this.showLoadingSkeleton();
             
             const messages = await window.apiClient?.openChat(chatName) || [];
+            console.log('Loaded messages:', messages);
             this.messageHistory = messages;
             this.currentChat = chatName;
             
@@ -515,11 +520,13 @@ class ChatApp {
         
         if (!content && !window.attachmentManager?.hasAttachments()) return;
         if (!this.currentChat) {
-            window.toast?.error('Please select or create a chat first');
-            return;
+            await this.showNewChatDialog();
+            if (!this.currentChat) return;
         }
         
         try {
+            console.log('Sending message to:', this.currentChat, 'Content:', content);
+            
             // Disable input
             this.setInputState(false);
             
