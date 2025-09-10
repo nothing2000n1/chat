@@ -413,52 +413,78 @@ class ChatApp {
     createMessageElement(message, index) {
         const isUser = message.role === 'user';
         const messageDiv = document.createElement('div');
+        messageDiv.className = `message-container flex mb-6 ${isUser ? 'user-message' : 'assistant-message'}`;
+        messageDiv.dataset.index = index;
         
-        // Check if we're in RTL mode
-        const isRTL = document.documentElement.dir === 'rtl';
+        // Create message wrapper with avatar
+        const messageWrapper = document.createElement('div');
+        messageWrapper.className = 'flex items-end max-w-4xl';
         
-        // In RTL: user messages go to the left, assistant to the right
-        // In LTR: user messages go to the right, assistant to the left
-        let justifyClass;
-        if (isRTL) {
-            justifyClass = isUser ? 'justify-start' : 'justify-end';
-        } else {
-            justifyClass = isUser ? 'justify-end' : 'justify-start';
-        }
+        // Create avatar
+        const avatar = document.createElement('div');
+        avatar.className = `message-avatar ${isUser ? 'user-avatar' : 'assistant-avatar'}`;
+        avatar.textContent = isUser ? 'U' : 'AI';
         
-        messageDiv.className = `message-container flex ${justifyClass} mb-4`;
+        // Create message bubble container
+        const bubbleContainer = document.createElement('div');
+        bubbleContainer.className = 'flex flex-col';
         
         const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = `message-bubble group ${isUser ? 'message-user' : 'message-assistant'}`;
         
-        // Message bubble styling with proper RTL support
-        let bubbleClasses = 'message-bubble p-4 max-w-xs lg:max-w-md xl:max-lg rounded-2xl ';
+        // Message content
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
         
-        if (isUser) {
-            // User message styling
-            bubbleClasses += 'bg-blue-600 text-white ';
-            if (isRTL) {
-                bubbleClasses += 'mr-auto rounded-tl-sm'; // RTL: user messages have rounded corner on top-left
+        if (message.content) {
+            // Process markdown if marked is available
+            if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+                const html = marked.parse(message.content);
+                const sanitized = DOMPurify.sanitize(html);
+                contentDiv.innerHTML = sanitized;
+                this.addCodeCopyButtons(contentDiv);
             } else {
-                bubbleClasses += 'ml-auto rounded-tr-sm'; // LTR: user messages have rounded corner on top-right
-            }
-        } else {
-            // Assistant message styling
-            bubbleClasses += 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 ';
-            if (isRTL) {
-                bubbleClasses += 'ml-auto rounded-tr-sm'; // RTL: assistant messages have rounded corner on top-right
-            } else {
-                bubbleClasses += 'mr-auto rounded-tl-sm'; // LTR: assistant messages have rounded corner on top-left
+                contentDiv.textContent = message.content;
             }
         }
         
-        bubbleDiv.className = bubbleClasses;
+        // Message actions
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'message-actions';
         
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
-        contentDiv.textContent = message.content || '';
+        actionsDiv.innerHTML = `
+            <button class="action-btn" onclick="window.chatApp.copyMessage(${index})" title="${window.i18n?.t('copy') || 'Copy'}">
+                <i data-lucide="copy" class="w-3 h-3"></i>
+            </button>
+            ${!isUser ? `
+                <button class="action-btn" onclick="window.chatApp.regenerateMessage(${index})" title="${window.i18n?.t('regenerate') || 'Regenerate'}">
+                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                </button>
+            ` : ''}
+            <button class="action-btn" onclick="window.chatApp.deleteMessage(${index})" title="${window.i18n?.t('delete') || 'Delete'}">
+                <i data-lucide="trash-2" class="w-3 h-3"></i>
+            </button>
+        `;
         
+        // Assemble the message
         bubbleDiv.appendChild(contentDiv);
-        messageDiv.appendChild(bubbleDiv);
+        bubbleDiv.appendChild(actionsDiv);
+        bubbleContainer.appendChild(bubbleDiv);
+        
+        // Add avatar and bubble to wrapper (order depends on user/assistant)
+        if (isUser) {
+            messageWrapper.appendChild(bubbleContainer);
+            messageWrapper.appendChild(avatar);
+        } else {
+            messageWrapper.appendChild(avatar);
+            messageWrapper.appendChild(bubbleContainer);
+        }
+        
+        messageDiv.appendChild(messageWrapper);
+        
+        // Add timestamp tooltip
+        const timestamp = new Date().toLocaleString();
+        bubbleDiv.title = timestamp;
         
         return messageDiv;
     }
@@ -576,13 +602,18 @@ class ChatApp {
         
         const indicator = document.createElement('div');
         indicator.id = 'typingIndicator';
-        indicator.className = 'flex justify-end mb-4'; // Assistant side (right)
+        indicator.className = 'flex justify-start mb-6'; // Assistant side (left)
         indicator.innerHTML = `
-            <div class="message-assistant rounded-2xl p-4 max-w-xs ml-auto rounded-tl-sm">
-                <div class="flex space-x-1">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot" style="animation-delay: 0.1s"></div>
-                    <div class="typing-dot" style="animation-delay: 0.2s"></div>
+            <div class="flex items-end max-w-4xl">
+                <div class="message-avatar assistant-avatar">
+                    AI
+                </div>
+                <div class="message-bubble message-assistant">
+                    <div class="typing-indicator flex space-x-1">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
                 </div>
             </div>
         `;
