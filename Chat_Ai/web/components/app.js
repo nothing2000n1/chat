@@ -8,27 +8,18 @@ class ChatApp {
         this.messageHistory = [];
         
         console.log('ChatApp constructor called');
-        this.init();
+        // Don't call init immediately, wait for DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.init());
+        } else {
+            // DOM is already loaded
+            setTimeout(() => this.init(), 100);
+        }
     }
 
     async init() {
         try {
             console.log('Initializing ChatApp...');
-            
-            // Wait for DOM to be fully loaded
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => this.initializeApp());
-            } else {
-                this.initializeApp();
-            }
-        } catch (error) {
-            console.error('Error initializing app:', error);
-        }
-    }
-
-    async initializeApp() {
-        try {
-            console.log('Starting app initialization...');
             
             // Initialize components
             this.initializeSettings();
@@ -36,49 +27,59 @@ class ChatApp {
             this.setupKeyboardShortcuts();
             
             // Load initial data
-            await this.loadChatHistory();
+            try {
+                await this.loadChatHistory();
+            } catch (error) {
+                console.warn('Could not load chat history:', error);
+                // Continue initialization even if history fails
+            }
             
             // Initialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
                 console.log('Lucide icons initialized');
+            } else {
+                console.warn('Lucide not available');
             }
             
             console.log('Chat AI initialized successfully');
         } catch (error) {
             console.error('Error initializing app:', error);
-            if (window.toast) {
-                window.toast.error('Error initializing application');
-            }
+            // Don't show toast error during initialization
+            console.error('Application failed to initialize:', error.message);
         }
     }
 
     initializeSettings() {
         console.log('Initializing settings...');
         
-        // Load and apply settings
-        const theme = window.store?.get('theme', 'system');
-        const language = window.store?.get('language', 'ar');
-        const apiBaseUrl = window.store?.get('apiBaseUrl', 'http://localhost:8000');
+        try {
+            // Load and apply settings with fallbacks
+            const theme = window.store?.get('theme', 'system') || 'system';
+            const language = window.store?.get('language', 'ar') || 'ar';
+            const apiBaseUrl = window.store?.get('apiBaseUrl', 'http://localhost:8000') || 'http://localhost:8000';
 
-        // Apply theme
-        if (window.themeManager) {
-            window.themeManager.setTheme(theme);
-        }
-        
-        // Apply language
-        if (window.i18n) {
-            window.i18n.setLanguage(language);
-        }
-        
-        // Set API base URL
-        if (window.apiClient) {
-            window.apiClient.setBaseUrl(apiBaseUrl);
-        }
-        
-        const apiInput = document.getElementById('apiBaseUrl');
-        if (apiInput) {
-            apiInput.value = apiBaseUrl;
+            // Apply theme
+            if (window.themeManager) {
+                window.themeManager.setTheme(theme);
+            }
+            
+            // Apply language
+            if (window.i18n) {
+                window.i18n.setLanguage(language);
+            }
+            
+            // Set API base URL
+            if (window.apiClient) {
+                window.apiClient.setBaseUrl(apiBaseUrl);
+            }
+            
+            const apiInput = document.getElementById('apiBaseUrl');
+            if (apiInput) {
+                apiInput.value = apiBaseUrl;
+            }
+        } catch (error) {
+            console.error('Error initializing settings:', error);
         }
     }
 
@@ -114,6 +115,8 @@ class ChatApp {
             messageInput.addEventListener('input', () => this.handleInputChange());
             messageInput.addEventListener('keydown', (e) => this.handleInputKeydown(e));
             console.log('Message input listeners added');
+        } else {
+            console.error('Message input not found!');
         }
 
         // Theme Toggle
@@ -172,6 +175,7 @@ class ChatApp {
     }
 
     setupKeyboardShortcuts() {
+        console.log('Setting up keyboard shortcuts...');
         document.addEventListener('keydown', (e) => {
             // Command palette (Cmd/Ctrl + K)
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -189,18 +193,21 @@ class ChatApp {
 
     // Chat Management
     async loadChatHistory() {
+        console.log('Loading chat history...');
+        if (!window.apiClient) {
+            console.warn('API client not available');
+            return;
+        }
+        
         try {
-            console.log('Loading chat history...');
-            if (window.apiClient) {
-                this.chats = await window.apiClient.getHistory() || [];
-                console.log('Loaded chats:', this.chats);
-                this.renderChatList();
-            }
+            this.chats = await window.apiClient.getHistory() || [];
+            console.log('Loaded chats:', this.chats);
+            this.renderChatList();
         } catch (error) {
             console.error('Error loading chat history:', error);
-            if (window.toast) {
-                window.toast.error('Error loading chat history');
-            }
+            // Don't show error toast during initialization
+            this.chats = [];
+            this.renderChatList();
         }
     }
 

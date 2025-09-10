@@ -340,6 +340,21 @@
     <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
 
     <!-- Scripts -->
+    <script>
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+        
+        // Check if all required libraries are loaded
+        window.addEventListener('load', function() {
+            console.log('Page loaded, checking dependencies...');
+            console.log('Lucide available:', typeof lucide !== 'undefined');
+            console.log('Marked available:', typeof marked !== 'undefined');
+            console.log('DOMPurify available:', typeof DOMPurify !== 'undefined');
+        });
+    </script>
+    
     <script src="/components/i18n.js"></script>
     <script src="/components/theme.js"></script>
     <script src="/components/store.js"></script>
@@ -349,5 +364,10 @@
     <script src="/components/recorder.js"></script>
     <script src="/components/attachments.js"></script>
     <script src="/components/app.js"></script>
+    
+    <script>
+        // Initialize app after all scripts are loaded
+        console.log('All scripts loaded, initializing app...');
+    </script>
 </body>
 </html>

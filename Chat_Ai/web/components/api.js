@@ -1,10 +1,20 @@
 // API Communication Module
 class ApiClient {
     constructor() {
-        this.baseUrl = window.store?.get('apiBaseUrl') || 'http://localhost:8000';
+        this.baseUrl = 'http://localhost:8000'; // Default fallback
         this.timeout = 30000; // 30 seconds
         this.retryAttempts = 3;
         this.retryDelay = 1000; // 1 second
+        
+        // Try to get from store after initialization
+        setTimeout(() => {
+            if (window.store) {
+                const storedUrl = window.store.get('apiBaseUrl');
+                if (storedUrl) {
+                    this.baseUrl = storedUrl;
+                }
+            }
+        }, 100);
     }
 
     setBaseUrl(url) {
